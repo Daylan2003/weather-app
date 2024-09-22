@@ -4,13 +4,13 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QPushButt
 from PyQt5.QtCore import Qt
 
 class WeatherApp(QWidget):  #class of weather app which inherits from the parent that is QWidget
-    def __innit__(self):
-        super().__innit__()
+    def __init__(self):
+        super().__init__()
         self.city_label = QLabel("Enter city name: ", self)
         self.city_input = QLineEdit(self)
         self.get_weather_button = QPushButton("get Weather", self)
         self.temperature_label = QLabel("20°C", self)
-        self.emoji_label = QLabel("sunsunsun", self)
+        self.emoji_label = QLabel("🌞🌞🌞", self)
         self.description_label = QLabel("Sunny", self)
 
 if __name__ == "__main__":
