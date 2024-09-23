@@ -9,9 +9,9 @@ class WeatherApp(QWidget):  #class of weather app which inherits from the parent
         self.city_label = QLabel("Enter city name: ", self)
         self.city_input = QLineEdit(self)
         self.get_weather_button = QPushButton("get Weather", self)
-        self.temperature_label = QLabel("20°C", self)
-        self.emoji_label = QLabel("🌞", self)
-        self.description_label = QLabel("Sunny", self)
+        self.temperature_label = QLabel(self)
+        self.emoji_label = QLabel(self)
+        self.description_label = QLabel(self)
         self.initUI()
 
     def initUI(self):
@@ -69,7 +69,59 @@ class WeatherApp(QWidget):  #class of weather app which inherits from the parent
             QLabel#description_label{
                 font-size: 50px;}
         """)
+
+
+        self.get_weather_button.clicked.connect(self.get_weather)
         
+    def get_weather(self):
+        
+        api_key = "5a81e85344ea4a178bcc989a421ed940"
+        city = self.city_input.text()
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+
+            if data["code"] == 200:
+                self.display_weather(data)
+
+        except requests.exceptions.HTTPError as http_error:
+            match response.status_code:
+                case 400:
+                    print("Bad Request\nPlease check your spelling")
+                case 401:
+                    print("Unauthorized\nValid api key")
+                case 403:
+                    print("Forbidden\nAccess is denied")
+                case 404:
+                    print("Not Found\nCity not found")
+                case 500:
+                    print("Internal Server Error\nPlease try again later")
+                case 502:
+                    print("Bad Gateway\nInvalid response from server")
+                case 503:
+                    print("Service unavailable\nServer is down")
+                case 504:
+                    print("Gateway timeout\nNo response from ther server")
+                case _:
+                    print("HTTP error occured\n{http_error}")  
+
+        except requests.exceptions.ConnectionError:
+            print("Connection Error:\nCheck your internet connection")    
+        except requests.exceptions.Timeout:
+            print("Timeout Error\nThe request timed out")  
+        except requests.exceptions.TooManyRedirects:
+            print("Too many redirects\nCheck the URL")                                          
+        except requests.exceptions.RequestException as req_error:
+            print(f"Request Error:\n{req_error}")
+
+    def display_error(self, message):
+        pass
+
+    def display_weather(self, data):
+        pass    
         
       
 
