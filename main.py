@@ -75,7 +75,7 @@ class WeatherApp(QWidget):  #class of weather app which inherits from the parent
         
     def get_weather(self):
         
-        api_key = "5a81e85344ea4a178bcc989a421ed940"
+        api_key = ""#API key deleted
         city = self.city_input.text()
         url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
 
