@@ -8,7 +8,7 @@ class WeatherApp(QWidget):  #class of weather app which inherits from the parent
         super().__init__()
         self.city_label = QLabel("Enter city name: ", self)
         self.city_input = QLineEdit(self)
-        self.get_weather_button = QPushButton("get Weather", self)
+        self.get_weather_button = QPushButton("Get Weather", self)
         self.temperature_label = QLabel(self)
         self.emoji_label = QLabel(self)
         self.description_label = QLabel(self)
@@ -84,44 +84,77 @@ class WeatherApp(QWidget):  #class of weather app which inherits from the parent
             response.raise_for_status()
             data = response.json()
 
-            if data["code"] == 200:
+            if data["cod"] == 200:
                 self.display_weather(data)
 
         except requests.exceptions.HTTPError as http_error:
             match response.status_code:
                 case 400:
-                    print("Bad Request\nPlease check your spelling")
+                    self.display_error("Bad Request\nPlease check your spelling")
                 case 401:
-                    print("Unauthorized\nValid api key")
+                    self.display_error("Unauthorized\nValid api key")
                 case 403:
-                    print("Forbidden\nAccess is denied")
+                    self.display_error("Forbidden\nAccess is denied")
                 case 404:
-                    print("Not Found\nCity not found")
+                    self.display_error("Not Found\nCity not found")
                 case 500:
-                    print("Internal Server Error\nPlease try again later")
+                    self.display_error("Internal Server Error\nPlease try again later")
                 case 502:
-                    print("Bad Gateway\nInvalid response from server")
+                    self.display_error("Bad Gateway\nInvalid response from server")
                 case 503:
-                    print("Service unavailable\nServer is down")
+                    self.display_error("Service unavailable\nServer is down")
                 case 504:
-                    print("Gateway timeout\nNo response from ther server")
+                    self.display_error("Gateway timeout\nNo response from ther server")
                 case _:
-                    print("HTTP error occured\n{http_error}")  
+                    self.display_error("HTTP error occured\n{http_error}")  
 
         except requests.exceptions.ConnectionError:
-            print("Connection Error:\nCheck your internet connection")    
+            self.display_error("Connection Error:\nCheck your internet connection")    
         except requests.exceptions.Timeout:
-            print("Timeout Error\nThe request timed out")  
+            self.display_error("Timeout Error\nThe request timed out")  
         except requests.exceptions.TooManyRedirects:
-            print("Too many redirects\nCheck the URL")                                          
+            self.display_error("Too many redirects\nCheck the URL")                                          
         except requests.exceptions.RequestException as req_error:
-            print(f"Request Error:\n{req_error}")
+            self.display_error(f"Request Error:\n{req_error}")
 
     def display_error(self, message):
-        pass
+        self.temperature_label.setStyleSheet("font-size: 30px;")
+        self.temperature_label.setText(message)
+        self.emoji_label.clear()
+        self.description_label.clear()
 
     def display_weather(self, data):
-        pass    
+        self.temperature_label.setStyleSheet("font-size: 75px;")
+        temperature_k = data["main"]["temp"]
+        temperature_c = temperature_k - 273.15
+
+        weather_id = data["weather"][0]["id"]
+
+        weather_description = data["weather"][0]["description"]
+
+        self.temperature_label.setText(f"{temperature_c:.0f}°C")
+        self.emoji_label.setText(self.get_weather_emoji(weather_id))
+        self.description_label.setText(f"{weather_description}")
+
+    @staticmethod
+    def get_weather_emoji(weather_id):  
+
+        if 200 <= weather_id <= 232:
+            return "⛈️"  # Thunderstorm
+        elif 300 <= weather_id <= 321:
+            return "🌧️"  # Drizzle
+        elif 500 <= weather_id <= 531:
+            return "🌧️"  # Rain
+        elif 600 <= weather_id <= 622:
+            return "❄️"  # Snow
+        elif 700 <= weather_id <= 781:
+            return "🌫️"  # Atmosphere (mist, fog, smoke, etc.)
+        elif weather_id == 800:
+            return "☀️"  # Clear sky
+        elif 801 <= weather_id <= 804:
+            return "☁️"  # Clouds
+        else:
+            return ""
         
       
 
